@@ -9,7 +9,7 @@ on:
         options: [next, latest]
 jobs:
   publish:
-    if: github.ref == 'refs/heads/main'
+    if: inputs.npm_tag == 'next' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: npm
     steps:
