@@ -9,8 +9,18 @@ on:
         options: [next, latest]
 jobs:
   publish:
-    if: inputs.npm_tag == 'next' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: ${{ inputs.npm_tag == 'latest' && 'npm' || 'npm-prerelease' }}
     steps:
+      - name: Confirm the channel is allowed from this ref
+        env:
+          NPM_TAG: ${{ inputs.npm_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$NPM_TAG" == "latest" && "$GITHUB_REF" != "refs/heads/main" ]]; then
+            echo "::error::Refusing to publish latest from $GITHUB_REF"
+            exit 1
+          fi
       - name: Stand-in for npm publish
-        run: echo "PUBLISHED from ref=$GITHUB_REF sha=$GITHUB_SHA tag=${{ inputs.npm_tag }}"
+        run: echo "PUBLISHED ref=$GITHUB_REF tag=${{ inputs.npm_tag }}"
